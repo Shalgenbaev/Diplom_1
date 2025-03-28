@@ -1,9 +1,12 @@
 package praktikum;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
+import org.assertj.core.api.SoftAssertions;
+
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.when;
 
@@ -16,10 +19,12 @@ public class BurgerTest {
     @Mock
     private Ingredient ingredient, ingredient2, ingredient3;
 
+    private SoftAssertions softAssertions;
+
     @Before
     public void createBurger() {
-
         burger = new Burger();
+        softAssertions = new SoftAssertions();
     }
 
     @Test
@@ -40,6 +45,7 @@ public class BurgerTest {
         burger.addIngredient(ingredient2);
         burger.addIngredient(ingredient3);
         assertEquals(3, burger.ingredients.size());
+
         burger.removeIngredient(2);
         assertEquals(2, burger.ingredients.size());
     }
@@ -49,9 +55,12 @@ public class BurgerTest {
         burger.addIngredient(ingredient);
         burger.addIngredient(ingredient2);
         burger.addIngredient(ingredient3);
+
         burger.moveIngredient(1, 2);
-        assertEquals(ingredient2, burger.ingredients.get(2));
-        assertEquals(ingredient3, burger.ingredients.get(1));
+
+        softAssertions.assertThat(burger.ingredients.get(2)).isEqualTo(ingredient2);
+        softAssertions.assertThat(burger.ingredients.get(1)).isEqualTo(ingredient3);
+        softAssertions.assertAll();
     }
 
     @Test
@@ -59,11 +68,13 @@ public class BurgerTest {
         burger.setBuns(bun);
         burger.addIngredient(ingredient);
         burger.addIngredient(ingredient2);
+
         when(bun.getPrice()).thenReturn(20F);
         when(ingredient.getPrice()).thenReturn(10F);
         when(ingredient2.getPrice()).thenReturn(2F);
+
         float expected = (20F * 2) + 10F + 2F;
-        assertEquals(expected, burger.getPrice(), 0);
+        assertEquals(expected, burger.getPrice(), 0.001);
     }
 
     @Test
@@ -71,6 +82,7 @@ public class BurgerTest {
         burger.setBuns(bun);
         burger.addIngredient(ingredient);
         burger.addIngredient(ingredient2);
+
         when(bun.getName()).thenReturn("burger");
         when(ingredient.getName()).thenReturn("ingredient1");
         when(ingredient2.getName()).thenReturn("ingredient2");
@@ -79,6 +91,7 @@ public class BurgerTest {
         when(ingredient2.getPrice()).thenReturn(2F);
         when(ingredient.getType()).thenReturn(IngredientType.SAUCE);
         when(ingredient2.getType()).thenReturn(IngredientType.FILLING);
+
         String expected = "(==== burger ====)\r\n" +
                 "= sauce ingredient1 =\r\n" +
                 "= filling ingredient2 =\r\n" +
@@ -88,5 +101,4 @@ public class BurgerTest {
 
         assertEquals(expected, burger.getReceipt());
     }
-
 }
